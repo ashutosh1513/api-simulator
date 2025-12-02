@@ -1,3 +1,17 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-background: #1e1e1e;
+  --color-panel: #252526;
+  --color-sidebar: #202124;
+  --color-text: #f1f1f1;
+  --color-border: #333333;
+  --color-primary: #0078d4;
+  --color-secondary: #444444;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text font-sans antialiased;
+  }
+}

@@ -1,13 +1,7 @@
-import React from "react";
-import CollectionsSidebar from "./components/CollectionsSidebar";
+import { MainLayout } from "./components/layout/MainLayout";
 
 function App() {
-  return (
-    <div style={{ padding: 16 }}>
-      <h1>Mock Desktop — Collections</h1>
-      <CollectionsSidebar />
-    </div>
-  );
+  return <MainLayout />;
 }
 
 export default App;
