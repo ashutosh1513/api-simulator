@@ -7,13 +7,17 @@ import {
   deleteProject,
   deleteCollection
 } from "../api";
+import ApiList from "./ApiList";
+import ApiEditor from "./ApiEditor";
 
 export default function CollectionsSidebar() {
   const [projects, setProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [collections, setCollections] = useState<any[]>([]);
   const [newCollectionName, setNewCollectionName] = useState("");
   const [newCollectionSlug, setNewCollectionSlug] = useState("");
+  const [apiListRefreshKey, setApiListRefreshKey] = useState(0);
 
   const [newProjectName, setNewProjectName] = useState("");
 
@@ -37,6 +41,8 @@ export default function CollectionsSidebar() {
 
   useEffect(() => {
     loadCollections();
+    // Clear selected collection when project changes
+    setSelectedCollection(null);
   }, [selectedProject]);
 
   async function onCreateProject() {
@@ -57,6 +63,11 @@ export default function CollectionsSidebar() {
     setNewCollectionSlug("");
     await loadCollections();
   }
+
+  const handleApiCreated = () => {
+    // Refresh ApiList by incrementing the key
+    setApiListRefreshKey((prev) => prev + 1);
+  };
 
   return (
     <div className="flex h-full bg-gray-100">
@@ -116,12 +127,27 @@ export default function CollectionsSidebar() {
               {collections.map((c) => (
                 <li
                   key={c.id}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-200"
+                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer
+                    ${selectedCollection === c.id ? "bg-blue-100" : "hover:bg-gray-200"}
+                  `}
                 >
-                  <span>{c.name}</span>
+                  <span
+                    onClick={() => setSelectedCollection(c.id)}
+                    className="flex-1 font-medium"
+                  >
+                    {c.name}
+                  </span>
                   <button
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => deleteCollection(c.id).then(loadCollections)}
+                    className="text-red-500 hover:text-red-700 ml-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCollection(c.id).then(() => {
+                        loadCollections();
+                        if (selectedCollection === c.id) {
+                          setSelectedCollection(null);
+                        }
+                      });
+                    }}
                   >
                     ✕
                   </button>
@@ -152,12 +178,23 @@ export default function CollectionsSidebar() {
         )}
       </div>
 
-      {/* MAIN AREA — Empty now */}
-      <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold">Mock Desktop</h1>
-        <p className="mt-2 text-gray-600">
-          API Simulator will appear here in Phase 3.
-        </p>
+      {/* RIGHT PANEL (APIs) */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {selectedCollection ? (
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <ApiList key={apiListRefreshKey} collectionId={selectedCollection} />
+            <ApiEditor
+              collectionId={selectedCollection}
+              onCreated={handleApiCreated}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 p-6 flex items-center justify-center">
+            <p className="text-gray-500 text-lg">
+              Select a collection to view and manage APIs
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

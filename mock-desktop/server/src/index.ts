@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import { projectRoutes } from "../routes/projects";
 import { collectionRoutes } from "../routes/collections";
+import { apiRoutes } from "../routes/apis";
+import { loadAllMocks } from "../mockRegistry";
 import cors from "@fastify/cors";
 
 const server = Fastify({ logger: true });
@@ -10,6 +12,7 @@ server.register(cors, {
 });
 server.register(projectRoutes);
 server.register(collectionRoutes);
+server.register(apiRoutes);
 server.get("/health", async () => {
   return { status: "OK", app: "Mock Server MVP" };
 });
@@ -18,6 +21,13 @@ server.get("/health", async () => {
 
 const start = async () => {
   try {
+    // Load all mock routes from database
+    try {
+      loadAllMocks(server);
+    } catch (err) {
+      console.error("⚠️  Failed to load mocks (server will continue):", err);
+    }
+
     // ✅ CRITICAL: "::" for dual-stack (IPv4 + IPv6) binding
     // This binds to BOTH 0.0.0.0:5050 AND [::]:5050
     await server.listen({
