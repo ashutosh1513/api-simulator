@@ -1,0 +1,22 @@
+{
+  "name": "mock-desktop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/electron.main.js",
+  "scripts": {
+    "ui": "cd desktop-ui && npm run dev",
+    "server": "cd server && npm run dev",
+    "electron": "tsc && electron .",
+    "dev": "concurrently \"npm run server\" \"npm run ui\" \"wait-on http://localhost:5173 && npm run electron\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.4",
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.3"
+  }
+}
