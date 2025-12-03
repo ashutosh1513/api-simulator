@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import { projectRoutes } from "../routes/projects";
 import { collectionRoutes } from "../routes/collections";
 import { apiRoutes } from "../routes/apis";
+import { logRoutes } from "../routes/logs";
 import { handleMockRequest } from "../mockRegistry";
 import cors from "@fastify/cors";
 
@@ -13,6 +14,7 @@ server.register(cors, {
 server.register(projectRoutes);
 server.register(collectionRoutes);
 server.register(apiRoutes);
+server.register(logRoutes);
 server.get("/health", async () => {
   return { status: "OK", app: "Mock Server MVP" };
 });
