@@ -1,4 +1,4 @@
-const BASE = "http://127.0.0.1:5050"; 
+const BASE = "http://127.0.0.1:5050";
 // DO NOT USE "localhost" (your machine has IPv6 issues)
 
 export async function listProjects() {
@@ -40,6 +40,12 @@ export async function deleteProject(id: string) {
 
 export async function deleteCollection(id: string) {
   const r = await fetch(`${BASE}/collections/${id}`, { method: "DELETE" });
+  return r.json();
+}
+
+export async function exportCollection(id: string) {
+  const r = await fetch(`${BASE}/collections/${id}/export`);
+  if (!r.ok) throw new Error("Failed to export collection");
   return r.json();
 }
 

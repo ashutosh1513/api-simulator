@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderPlus, Trash2, ChevronRight, ChevronDown, Layers } from "lucide-react";
+import { FolderPlus, Trash2, ChevronRight, ChevronDown, Layers, Download } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { cn } from "../../lib/utils";
@@ -15,6 +15,7 @@ interface CollectionListProps {
     selectedProject: string | null;
     onSelectCollection: (id: string) => void;
     onDeleteCollection: (id: string, e: React.MouseEvent) => void;
+    onExportCollection: (id: string, e: React.MouseEvent) => void;
     isCreating: boolean;
     setIsCreating: (v: boolean) => void;
     newCollectionName: string;
@@ -30,6 +31,7 @@ export function CollectionList({
     selectedProject,
     onSelectCollection,
     onDeleteCollection,
+    onExportCollection,
     isCreating,
     setIsCreating,
     newCollectionName,
@@ -123,12 +125,22 @@ export function CollectionList({
                                         )}
                                         <span className="truncate">{collection.name}</span>
                                     </div>
-                                    <button
-                                        onClick={(e) => onDeleteCollection(collection.id, e)}
-                                        className="opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
+                                    <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                        <button
+                                            onClick={(e) => onExportCollection(collection.id, e)}
+                                            className="text-gray-400 hover:text-blue-400"
+                                            title="Export Collection"
+                                        >
+                                            <Download size={14} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => onDeleteCollection(collection.id, e)}
+                                            className="hover:text-red-400"
+                                            title="Delete Collection"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         )}

@@ -6,6 +6,7 @@ import {
     deleteProject,
     createCollection,
     deleteCollection,
+    exportCollection,
 } from "../../api";
 import { ProjectList } from "../features/ProjectList";
 import { CollectionList } from "../features/CollectionList";
@@ -129,6 +130,26 @@ export function Sidebar({
         }
     }
 
+    async function handleExportCollection(id: string, e: React.MouseEvent) {
+        e.stopPropagation();
+        try {
+            const data = await exportCollection(id);
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `collection-${data.collection.slug}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Failed to export collection:", error);
+        }
+    }
+
     return (
         <div className="flex h-full w-[300px] flex-col border-r border-border bg-sidebar text-text">
             <ProjectList
@@ -148,6 +169,7 @@ export function Sidebar({
                 selectedProject={selectedProject}
                 onSelectCollection={onSelectCollection as any}
                 onDeleteCollection={handleDeleteCollection}
+                onExportCollection={handleExportCollection}
                 isCreating={isCreatingCollection}
                 setIsCreating={setIsCreatingCollection}
                 newCollectionName={newCollectionName}

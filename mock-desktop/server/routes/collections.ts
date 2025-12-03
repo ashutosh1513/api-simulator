@@ -70,6 +70,20 @@ export async function collectionRoutes(app: FastifyInstance) {
     return row;
   });
 
+  // Export collection
+  app.get("/collections/:id/export", async (req, reply) => {
+    const collectionId = (req.params as any).id;
+
+    const collection = db.prepare("SELECT * FROM collections WHERE id = ?").get(collectionId);
+    if (!collection) {
+      return reply.status(404).send({ error: "Collection not found" });
+    }
+
+    const apis = db.prepare("SELECT * FROM apis WHERE collection_id = ?").all(collectionId);
+
+    return { collection, apis };
+  });
+
   app.delete("/collections/:id", async (req, reply) => {
     const collectionId = (req.params as any).id;
 
