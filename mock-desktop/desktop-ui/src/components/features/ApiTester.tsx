@@ -76,8 +76,12 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
     }, [api, projectSlug, collectionSlug]);
 
     const getFinalUrl = () => {
-        let finalUrl = `http://127.0.0.1:5050/mock/${projectSlug}/${collectionSlug}`;
-        let endpoint = api.endpoint.trim().startsWith("/") ? api.endpoint.trim() : `/${api.endpoint.trim()}`;
+        // Force 127.0.0.1
+        const baseUrl = `http://127.0.0.1:5050/mock/${projectSlug}/${collectionSlug}`;
+        let endpoint = api.endpoint.trim();
+
+        // Ensure endpoint starts with /
+        if (!endpoint.startsWith("/")) endpoint = "/" + endpoint;
 
         // Replace path params
         pathParams.forEach(p => {
@@ -86,7 +90,11 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
             }
         });
 
-        finalUrl += endpoint;
+        // Normalize slashes (prevent double slashes)
+        // We want to keep the protocol slashes http://
+        const normalizedEndpoint = endpoint.replace(/\/+/g, "/");
+
+        let finalUrl = baseUrl + normalizedEndpoint;
 
         // Append query params
         const activeQueryParams = queryParams.filter(p => p.enabled && p.key);
@@ -109,11 +117,28 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
             return acc;
         }, {} as Record<string, string>);
 
+        // Ensure Content-Type for body methods if not set
+        if (["POST", "PUT", "PATCH"].includes(method.toUpperCase()) && !activeHeaders["Content-Type"]) {
+            activeHeaders["Content-Type"] = "application/json";
+        }
+
+        console.log(`[API TEST SEND] ${method} ${finalUrl}`);
+        console.log(`[API TEST HEADERS]`, activeHeaders);
+        console.log(`[API TEST BODY]`, body);
+
+        let finalBody = body;
+        if (["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
+            // If Content-Type is JSON and body is empty, send {}
+            if (activeHeaders["Content-Type"]?.includes("application/json") && !body.trim()) {
+                finalBody = "{}";
+            }
+        }
+
         try {
             const res = await fetch(finalUrl, {
                 method,
                 headers: activeHeaders,
-                body: ["GET", "HEAD"].includes(method.toUpperCase()) ? undefined : body,
+                body: ["GET", "HEAD"].includes(method.toUpperCase()) ? undefined : finalBody,
             });
 
             const duration = performance.now() - startTime;
@@ -237,8 +262,8 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab
-                                ? "border-primary text-primary"
-                                : "border-transparent text-gray-400 hover:text-text"
+                            ? "border-primary text-primary"
+                            : "border-transparent text-gray-400 hover:text-text"
                             }`}
                     >
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}

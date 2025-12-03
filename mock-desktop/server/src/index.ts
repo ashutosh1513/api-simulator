@@ -11,6 +11,14 @@ server.register(cors, {
   origin: "*",  // allow Electron renderer
   methods: ["GET", "POST", "PUT", "DELETE"]
 });
+
+// Log all incoming mock requests
+server.addHook("onRequest", async (req, reply) => {
+  if (req.raw.url?.startsWith("/mock")) {
+    console.log(`[INCOMING MOCK REQ] ${req.method} ${req.raw.url}`);
+  }
+});
+
 server.register(projectRoutes);
 server.register(collectionRoutes);
 server.register(apiRoutes);

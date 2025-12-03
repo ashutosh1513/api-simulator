@@ -59,6 +59,8 @@ export async function handleMockRequest(req: FastifyRequest, reply: FastifyReply
   const [, projectSlug, collectionSlug, endpointPath] = matchResult;
   const method = req.method.toUpperCase();
 
+  console.log(`[MOCK LOOKUP] Project: ${projectSlug}, Collection: ${collectionSlug}, Method: ${method}, Path: ${endpointPath}`);
+
   // 1. Find the collection ID based on slugs
   const collectionRow = db.prepare(`
     SELECT c.id 
@@ -107,6 +109,7 @@ export async function handleMockRequest(req: FastifyRequest, reply: FastifyReply
   }
 
   if (!collectionId) {
+    console.warn(`[MOCK 404] Collection not found for slug: ${collectionSlug} in project: ${projectSlug}`);
     return reply.status(404).send({ error: "Project or Collection not found" });
   }
 
@@ -141,6 +144,8 @@ export async function handleMockRequest(req: FastifyRequest, reply: FastifyReply
   }
 
   if (!matchedApi) {
+    console.warn(`[MOCK 404] No API matched for path: ${normalizedPath} with method: ${method}`);
+    console.log(`[MOCK DEBUG] Available endpoints for this collection:`, apis.map(a => a.endpoint));
     return reply.status(404).send({ error: "Mock API not found" });
   }
 
