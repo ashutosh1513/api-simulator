@@ -1,11 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { db } from "../database/db";
 import { randomUUID } from "crypto";
-import {
-  registerMockRoute,
-  updateMockRoute,
-  unregisterMockRoute,
-} from "../mockRegistry";
+
 
 export async function apiRoutes(app: FastifyInstance) {
   // CREATE API
@@ -107,21 +103,7 @@ export async function apiRoutes(app: FastifyInstance) {
         created_at
       );
 
-      // Register the mock route
-      const apiRow = {
-        id,
-        collection_id: collectionId,
-        method: normalizedMethod,
-        endpoint: normalizedEndpoint,
-        status_code: finalStatusCode,
-        response_type: finalResponseType,
-        response_body,
-        delay_ms: finalDelayMs,
-        created_at,
-        updated_at: null,
-      };
 
-      registerMockRoute(app, apiRow);
 
       return {
         id,
@@ -187,7 +169,7 @@ export async function apiRoutes(app: FastifyInstance) {
     const normalizedMethod = method
       ? method.toUpperCase()
       : existingApi.method.toUpperCase();
-    
+
     // Normalize endpoint: ensure it starts with /
     const rawEndpoint = endpoint ?? existingApi.endpoint;
     const finalEndpoint = rawEndpoint.trim().startsWith("/")
@@ -267,21 +249,7 @@ export async function apiRoutes(app: FastifyInstance) {
         apiId
       );
 
-      // Update the mock route
-      const apiRow = {
-        id: apiId,
-        collection_id: existingApi.collection_id,
-        method: finalMethod,
-        endpoint: finalEndpoint,
-        status_code: finalStatusCode,
-        response_type: finalResponseType,
-        response_body: finalResponseBody,
-        delay_ms: finalDelayMs,
-        created_at: existingApi.created_at,
-        updated_at,
-      };
 
-      updateMockRoute(app, apiRow);
 
       return {
         id: apiId,
@@ -314,8 +282,7 @@ export async function apiRoutes(app: FastifyInstance) {
     }
 
     try {
-      // Unregister the mock route first
-      unregisterMockRoute(app, apiId);
+
 
       // Delete from database
       db.prepare("DELETE FROM apis WHERE id = ?").run(apiId);
