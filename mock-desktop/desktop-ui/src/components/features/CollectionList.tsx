@@ -73,7 +73,13 @@ export function CollectionList({
                             <Input
                                 placeholder="Slug (e.g. users-api)"
                                 value={newCollectionSlug}
-                                onChange={(e) => setNewCollectionSlug(e.target.value)}
+                                onChange={(e) => {
+                                    const val = e.target.value
+                                        .toLowerCase()
+                                        .replace(/[\s]+/g, "-")
+                                        .replace(/[^a-z0-9-_]/g, "");
+                                    setNewCollectionSlug(val);
+                                }}
                                 className="h-8"
                             />
                             <div className="flex justify-end gap-2">

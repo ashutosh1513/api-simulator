@@ -8,8 +8,15 @@ export async function collectionRoutes(app: FastifyInstance) {
     const projectId = (req.params as any).projectId;
     const { name, slug } = req.body as any;
 
-    if (!name || !slug) {
-      return reply.status(400).send({ error: "Name & slug required" });
+    // Sanitize slug: lowercase, replace spaces with hyphens, remove special chars
+    const sanitizedSlug = (slug || "")
+      .toLowerCase()
+      .trim()
+      .replace(/[\s]+/g, "-")
+      .replace(/[^a-z0-9-_]/g, "");
+
+    if (!name || !sanitizedSlug) {
+      return reply.status(400).send({ error: "Name & valid slug required" });
     }
 
     // Optionally verify project exists
@@ -27,13 +34,13 @@ export async function collectionRoutes(app: FastifyInstance) {
     `);
 
     try {
-      stmt.run(id, projectId, name, slug, created_at);
+      stmt.run(id, projectId, name, sanitizedSlug, created_at);
     } catch (err) {
       app.log.error(err, "Failed insert collection");
       return reply.status(500).send({ error: "Failed to create collection" });
     }
 
-    return { id, projectId, name, slug, created_at };
+    return { id, projectId, name, slug: sanitizedSlug, created_at };
   });
 
   // List collections for a project
