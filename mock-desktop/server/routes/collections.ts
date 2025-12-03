@@ -53,17 +53,27 @@ export async function collectionRoutes(app: FastifyInstance) {
     return rows;
   });
 
+  // Get single collection
+  app.get("/collections/:id", async (req, reply) => {
+    const id = (req.params as any).id;
+    const row = db.prepare("SELECT * FROM collections WHERE id = ?").get(id);
+    if (!row) {
+      return reply.status(404).send({ error: "Collection not found" });
+    }
+    return row;
+  });
+
   app.delete("/collections/:id", async (req, reply) => {
-  const collectionId = (req.params as any).id;
+    const collectionId = (req.params as any).id;
 
-  const exists = db.prepare("SELECT id FROM collections WHERE id = ?").get(collectionId);
-  if (!exists) {
-    return reply.status(404).send({ error: "Collection not found" });
-  }
+    const exists = db.prepare("SELECT id FROM collections WHERE id = ?").get(collectionId);
+    if (!exists) {
+      return reply.status(404).send({ error: "Collection not found" });
+    }
 
-  db.prepare("DELETE FROM collections WHERE id = ?").run(collectionId);
+    db.prepare("DELETE FROM collections WHERE id = ?").run(collectionId);
 
-  return { success: true };
-});
+    return { success: true };
+  });
 
 }
