@@ -9,7 +9,7 @@ import cors from "@fastify/cors";
 const server = Fastify({ logger: true });
 server.register(cors, {
   origin: "*",  // allow Electron renderer
-  methods: ["GET", "POST", "PUT", "DELETE"]
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
 });
 
 // Log all incoming mock requests
