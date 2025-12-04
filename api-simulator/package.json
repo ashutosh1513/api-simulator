@@ -7,10 +7,10 @@
   "license": "MIT",
   "scripts": {
     "build:ui": "cd desktop-ui && cross-env NODE_ENV=production npm run build",
-    "build:server": "tsc --project server",
+    "build:server": "cd server && npm run build",
     "build": "npm run build:ui && npm run build:server && tsc -p .",
     "start": "electron-forge start",
-    "dev": "concurrently \"cd desktop-ui && npm run dev\" \"wait-on http://localhost:5173 && electron-forge start\"",
+    "dev": "concurrently \"cd desktop-ui && npm run dev\" \"cd server && npm run dev\" \"wait-on http://localhost:5173 && electron-forge start\"",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make"
   },

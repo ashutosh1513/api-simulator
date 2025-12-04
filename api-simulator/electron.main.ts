@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { spawn } from "child_process";
+import fs from "fs";
 
 let mainWindow: BrowserWindow | null = null;
 let serverProcess: any = null;
@@ -32,14 +33,24 @@ function startServer() {
   if (app.isPackaged) {
     // Production: Server is in resources/server
     const serverPath = path.join(process.resourcesPath, "server");
-    const serverEntry = path.join(serverPath, "dist/index.js");
+    const serverEntry = path.join(serverPath, "dist/src/index.js");
+
+    // Use writable userData directory for database
+    const userDataPath = app.getPath("userData");
+    const dbPath = path.join(userDataPath, "app.db");
+
+    // Ensure userData directory exists
+    if (!fs.existsSync(userDataPath)) {
+      fs.mkdirSync(userDataPath, { recursive: true });
+    }
 
     console.log("Starting server from:", serverEntry);
+    console.log("Database path:", dbPath);
 
     serverProcess = spawn("node", [serverEntry], {
       cwd: serverPath,
       stdio: "inherit", // Log server output to main process console
-      env: { ...process.env, NODE_ENV: "production" }
+      env: { ...process.env, NODE_ENV: "production", DB_PATH: dbPath }
     });
 
     serverProcess.on("error", (err: any) => {

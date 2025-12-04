@@ -2,10 +2,18 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 
-const dbDir = path.join(__dirname);
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+// Production: DB_PATH from Electron main process (writable userData directory)
+// Development: Use local directory alongside this file
+const dbPath = process.env.DB_PATH || path.join(__dirname, "app.db");
+const dbDir = path.dirname(dbPath);
 
-const dbPath = path.join(dbDir, "app.db");
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+console.log(`[Database] Opening: ${dbPath}`);
+console.log(`[Database] Directory: ${dbDir}`);
+
 export const db = new Database(dbPath);
 
 // Projects table (if not already present)
@@ -52,7 +60,7 @@ db.prepare(`
 try {
   const tableInfo = db.prepare("PRAGMA table_info(apis)").all() as Array<{ name: string }>;
   const hasDelayMs = tableInfo.some((col) => col.name === "delay_ms");
-  
+
   if (!hasDelayMs) {
     console.log("Migrating: Adding delay_ms column to apis table...");
     db.prepare("ALTER TABLE apis ADD COLUMN delay_ms INTEGER NOT NULL DEFAULT 0").run();
@@ -66,7 +74,7 @@ try {
 try {
   const tableInfo = db.prepare("PRAGMA table_info(apis)").all() as Array<{ name: string }>;
   const hasUpdatedAt = tableInfo.some((col) => col.name === "updated_at");
-  
+
   if (!hasUpdatedAt) {
     console.log("Migrating: Adding updated_at column to apis table...");
     db.prepare("ALTER TABLE apis ADD COLUMN updated_at TEXT").run();
