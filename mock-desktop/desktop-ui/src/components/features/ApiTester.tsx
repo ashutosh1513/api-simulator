@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Play, Save, Copy, Loader2, Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
+import { Play, Copy, Loader2, Plus, Trash2 } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Badge } from "../ui/Badge";
@@ -24,7 +24,6 @@ interface KeyValue {
 
 export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) {
     const [method, setMethod] = useState(api.method);
-    const [url, setUrl] = useState("");
     const [headers, setHeaders] = useState<KeyValue[]>([
         { key: "Content-Type", value: api.response_type || "application/json", enabled: true },
     ]);
@@ -53,9 +52,6 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
         if (["POST", "PUT", "PATCH"].includes(api.method.toUpperCase())) {
             // Try to pretty print if it's JSON
             try {
-                const json = JSON.parse(api.response_body); // Using response body as a template/example? 
-                // Actually usually request body is different, but for mock testing we might want to send something.
-                // Let's leave it empty or default to {} for JSON
                 setBody("{}");
             } catch {
                 setBody("");
@@ -63,15 +59,6 @@ export function ApiTester({ api, projectSlug, collectionSlug }: ApiTesterProps) 
         } else {
             setBody("");
         }
-
-        // Construct base URL
-        const normalizedEndpoint = api.endpoint.trim().startsWith("/")
-            ? api.endpoint.trim()
-            : `/${api.endpoint.trim()}`;
-
-        // We don't set the full URL here because it depends on path params
-        // But we can show the template
-        setUrl(`http://127.0.0.1:5050/mock/${projectSlug}/${collectionSlug}${normalizedEndpoint}`);
 
     }, [api, projectSlug, collectionSlug]);
 
