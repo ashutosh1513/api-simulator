@@ -7,8 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build:ui": "cd desktop-ui && cross-env NODE_ENV=production npm run build",
-    "build:server": "cd server && tsc -p tsconfig.json",
-    "build": "npm run build:ui && npm run build:server && tsc -p tsconfig.node.json",
+    "build:server": "tsc --project server",
+    "build": "npm run build:ui && npm run build:server && tsc -p .",
     "start": "electron-forge start",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make"

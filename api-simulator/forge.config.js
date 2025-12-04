@@ -1,23 +1,21 @@
-const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const path = require('path');
+const { FusesPlugin } = require('@electron-forge/plugin-fuses');
+const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 module.exports = {
   packagerConfig: {
     asar: true,
-    asarUnpack: [
-      // unpack server so it can be spawned at runtime
-      'server/**'
-    ],
-    icon: path.resolve(__dirname, 'assets', 'icon') // base name (icon.ico, icon.icns)
+    asarUnpack: ['server/**'], // allow server execution
+    icon: path.resolve(__dirname, 'assets', 'icon') // no extension
   },
-  rebuildConfig: {},
+
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'mock_desktop',
-        authors: 'Ashutosh Mishra',
-        description: 'Mock Desktop — an API mocking & testing desktop app',
+        name: "api_simulator",
+        authors: "Ashutosh Mishra",
+        description: "API Simulator Desktop App",
         setupIcon: path.resolve(__dirname, 'assets', 'icon.ico'),
         noMsi: true
       }
@@ -35,11 +33,23 @@ module.exports = {
       config: {}
     }
   ],
+
   plugins: [
-    { name: '@electron-forge/plugin-auto-unpack-natives' },
+    // FIXED: This needs to be an object with "name" and optional "config"
+    {
+      name: '@electron-forge/plugin-auto-unpack-natives',
+      config: {}
+    },
+
+    // This one must stay as an instance
     new FusesPlugin({
-      version: 1,
-      // fuse options...
+      version: FuseVersion.V1,
+      [FuseV1Options.RunAsNode]: false,
+      [FuseV1Options.EnableCookieEncryption]: true,
+      [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
+      [FuseV1Options.EnableNodeCliInspectArguments]: false,
+      [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: true
     })
   ]
 };
