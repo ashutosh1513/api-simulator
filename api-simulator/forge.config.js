@@ -5,7 +5,10 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
-    asarUnpack: ['server/**'], // allow server execution
+    // Copy the server folder to the resources directory
+    extraResource: [
+      path.resolve(__dirname, 'server')
+    ],
     icon: path.resolve(__dirname, 'assets', 'icon') // no extension
   },
 
@@ -35,13 +38,10 @@ module.exports = {
   ],
 
   plugins: [
-    // FIXED: This needs to be an object with "name" and optional "config"
     {
       name: '@electron-forge/plugin-auto-unpack-natives',
       config: {}
     },
-
-    // This one must stay as an instance
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,

@@ -10,5 +10,9 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["electron.main.ts", "server/**/*"]
+  "include": [
+    "electron.main.ts",
+    "preload.ts",
+    "server/**/*"
+  ]
 }
