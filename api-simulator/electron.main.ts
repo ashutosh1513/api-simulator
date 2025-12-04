@@ -49,7 +49,9 @@ function startServer() {
 
     serverProcess = spawn("node", [serverEntry], {
       cwd: serverPath,
-      stdio: "inherit", // Log server output to main process console
+      stdio: "ignore", // Don't show console window
+      detached: false,
+      windowsHide: true, // Hide terminal window on Windows
       env: { ...process.env, NODE_ENV: "production", DB_PATH: dbPath }
     });
 
